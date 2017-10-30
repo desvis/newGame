@@ -253,7 +253,7 @@ function update() {
 			boss.alive = true;
 		}
 
-		if (updCount % FPS == 0) {
+		if (updCount % FPS == 0 && player.mp < 50) {
 			player.mp++;
 		}
 
@@ -309,19 +309,40 @@ function init() {
 	updCountForBoss = 0;
 	killEnemyCount = 0;
 	isGameClear = false;
-
 	player = new Player(new Position((CANVAS_WIDTH / 2), 400));
-	playerMagic = new Array(2);
-	playerMagic[0] = new Magic(1, new Position(0, 0), 128, 128, 20, 7, 10, FPS / 2, 5);
-	playerMagic[1] = new LongDistanceMagicInfo(FPS / 2);
-
 	enemy = new Array(ENEMY_MAX_COUNT);
 	for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
 		enemy[i] = new Enemy(new Position(0, 0));
 	}
-
 	boss = new Boss(new Position((CANVAS_WIDTH / 2), 150));
-	bossMagic = new Magic(90, new Position(0, 0), 320, 240, 120, 12, 20, FPS * 3);
+	createMagic();
+}
+
+function createMagic() {
+	var playerMagic01 = new Magic();
+	playerMagic01.magicNo = 1;
+	playerMagic01.position = new Position(0, 0);
+	playerMagic01.width = 128;
+	playerMagic01.height = 128;
+	playerMagic01.size = 20;
+	playerMagic01.motionCount = 7;
+	playerMagic01.power = 10;
+	playerMagic01.recastTime = FPS / 2;
+	playerMagic01.useMp = 5;
+	playerMagic = new Array(2);
+	playerMagic[0] = playerMagic01;
+	playerMagic[1] = new LongDistanceMagicInfo(FPS / 2);
+
+	var bossMagic01 = new Magic();
+	bossMagic01.magicNo = 90;
+	bossMagic01.position = new Position(0, 0);
+	bossMagic01.width = 320;
+	bossMagic01.height = 240;
+	bossMagic01.size = 120;
+	bossMagic01.motionCount = 12;
+	bossMagic01.power = 20;
+	bossMagic01.recastTime = FPS * 3;
+	bossMagic = bossMagic01;
 }
 
 function judgeCollisionOfAttack(magic) {

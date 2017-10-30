@@ -106,7 +106,16 @@ class Player {
 
 	attackS(magicInfo, updCount) {
 		if (!this.attacking && player.mp >= magicInfo.useMp && updCount - magicInfo.useTime >= magicInfo.recastTime) {
-			var magic = new LongDistanceMagic(2, new Position(this.position.x, this.position.y), 80, 80, 22, 15, 10, magicInfo.recastTime, magicInfo.useMp, 5);
+			var magic = new LongDistanceMagic();
+			magic.magicNo = 2;
+			magic.position = new Position(this.position.x, this.position.y);
+			magic.width = 80;
+			magic.height = 80;
+			magic.size = 22;
+			magic.motionCount = 15;
+			magic.power = 10;
+			magic.recastTime = magicInfo.recastTime;
+			magic.useMp = 5;
 
 			switch (this.direction) {
 			case 0: // 左
@@ -211,26 +220,26 @@ class Boss {
 }
 
 class Magic {
-	constructor(magicNo, position, width, height, size, motionCount, power, recastTime, useMp) {
-		this.magicNo = magicNo;
-		this.position = position;
-		this.width = width;
-		this.height = height;
-		this.size = size;
+	constructor() {
+		this.magicNo;
+		this.position;
+		this.width;
+		this.height;
+		this.size;
 		this.alive = false;
 		this.motion = 0;
-		this.motionCount = motionCount;
-		this.power = power;
+		this.motionCount;
+		this.power;
 		this.useTime = 0;
-		this.recastTime = recastTime;
-		this.useMp = useMp;
+		this.recastTime;
+		this.useMp;
 	}
 }
 
 class LongDistanceMagic extends Magic {
-	constructor(magicNo, position, width, height, size, motionCount, power, recastTime, useMp, speed) {
-		super(magicNo, position, width, height, size, motionCount, power, recastTime, useMp);
-		this.speed = speed;
+	constructor() {
+		super();
+		this.speed = 5;
 		this.direction = 0;
 	}
 	move(CANVAS_WIDTH, CANVAS_HEIGHT) {
