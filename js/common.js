@@ -1,20 +1,22 @@
-function Position() {
-	this.x = 0;
-	this.y = 0;
+class Position {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;	
+	}
+	getDistance(position) {
+		var d = new Distance();
+		d.x = position.x - this.x;
+		d.y = position.y - this.y;
+		return d;
+	}
 }
 
-Position.prototype.getDistance = function(p) {
-	var d = new Distance();
-	d.x = p.x - this.x;
-	d.y = p.y - this.y;
-	return d;
-};
-
-function Distance() {
-	this.x = 0;
-	this.y = 0;
-}
-
-Distance.prototype.getLength = function() {
-	return Math.sqrt(this.x * this.x + this.y * this.y);
+class Distance {
+	constructor() {
+		this.x = 0;
+		this.y = 0;
+	}
+	getLength() {
+		return Math.sqrt(this.x * this.x + this.y * this.y);
+	}
 }

@@ -13,7 +13,6 @@ var playerMagic;
 var enemy;
 var boss;
 var bossMagic;
-var ready = false;
 var isGameClear = false;
 var run = true;
 
@@ -47,20 +46,6 @@ function update() {
 		ctx.fillText('※ enterキーを押して下さい', 220, 560);
 		break;
 	case 1:
-		if (!ready) {
-			player = new Player();
-			player.position.x = (CANVAS_WIDTH / 2);
-			player.position.y = 400;
-			playerMagic = new PlayerMagic(FPS);
-			enemy = new Array(ENEMY_MAX_COUNT);
-			for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
-				enemy[i] = new Enemy();
-			}
-			boss = new Boss();
-			bossMagic = new BossMagic();
-			ready = true;
-		}
-
 		ctx.drawImage(Asset.images.main, 0 ,0);
 
 		var playerImgX = (player.attacking) ? 0 : player.width;
@@ -80,11 +65,15 @@ function update() {
 
 		ctx.drawImage(Asset.images.player, playerImgX, playerImgY, player.width, player.height,
 				player.position.x - player.width / 2, player.position.y - player.height / 2, player.width, player.height);
+		ctx.beginPath();
+		ctx.arc(player.position.x, player.position.y, player.size, 0, Math.PI * 2, false);
+		ctx.stroke();
 
 		for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
 			if (updCount % (FPS * 2) == 0) {
 				if (!enemy[i].alive && enemy[i].hp > 0) {
 					enemy[i].alive = true;
+
 					switch (i) {
 					case 1:
 						enemy[i].position.x = CANVAS_WIDTH;
@@ -95,6 +84,7 @@ function update() {
 					case 3:
 						enemy[i].position.y = CANVAS_HEIGHT;
 					}
+
 					break;
 				}
 			}
@@ -105,25 +95,23 @@ function update() {
 				var distance = enemy[i].position.getDistance(player.position);
 				enemy[i].move(distance, player);
 
-				if (distance.getLength() <= player.width - 10) {
+				if (distance.getLength() < player.size + enemy[i].size) {
 					if (player.alive && !player.damaged) {
-						player.hp -= 5;
+						player.hp -= enemy[i].power;
 						player.damaged = true;
 					}
 				}
 
 				ctx.drawImage(Asset.images.enemy01,
 					enemy[i].position.x - enemy[i].width / 2, enemy[i].position.y - enemy[i].height / 2);
+				ctx.beginPath();
+				ctx.arc(enemy[i].position.x, enemy[i].position.y, enemy[i].size, 0, Math.PI * 2, false);
+				ctx.stroke();
 			}
 		}
 
 		if (boss.alive) {
 			updCountForBoss++;
-
-			if (updCountForBoss == 1) {
-				boss.position.x = (CANVAS_WIDTH / 2);
-				boss.position.y = 150;
-			}
 
 			if (FPS < updCountForBoss && updCountForBoss <= FPS + 10) {
 				ctx.drawImage(Asset.images.effect03, 200 * (updCountForBoss - FPS - 1), 0, 200, 200,
@@ -133,10 +121,10 @@ function update() {
 			if (updCountForBoss > FPS * 2) {
 				boss.move(CANVAS_WIDTH, CANVAS_HEIGHT, player, updCountForBoss, FPS);
 				ctx.drawImage(Asset.images.boss, boss.position.x - boss.width / 2, boss.position.y - boss.height / 2);
-			}
-
-			if (updCountForBoss % (FPS * 3) == 0) {
-				boss.attack(bossMagic);
+				ctx.beginPath();
+				ctx.arc(boss.position.x, boss.position.y, boss.size, 0, Math.PI * 2, false);
+				ctx.stroke();
+				boss.attack(bossMagic, updCount);
 			}
 
 			if (boss.attacking) {
@@ -146,21 +134,105 @@ function update() {
 				ctx.drawImage(Asset.images.effect04, 0, bossMagicImgY, bossMagic.width, bossMagic.height,
 					bossMagic.position.x - bossMagic.width / 2, bossMagic.position.y - bossMagic.height / 2,
 					bossMagic.width, bossMagic.height);
+				ctx.beginPath();
+				ctx.arc(bossMagic.position.x, bossMagic.position.y, bossMagic.size, 0, Math.PI * 2, false);
+				ctx.stroke();
 
-				var distance = bossMagic.position.getDistance(player.position);
+				if (player.alive) {
+					var distance = bossMagic.position.getDistance(player.position);
 
-				if (distance.getLength() <= bossMagic.width / 2) {
-					if (player.alive && !player.damaged) {
-						player.hp -= bossMagic.power;
-						if (player.hp < 0) player.hp = 0;
-						player.damaged = true;
+					if (distance.getLength() < bossMagic.size + player.size) {
+						if (!player.damaged) {
+							player.hp -= bossMagic.power;
+							if (player.hp < 0) player.hp = 0;
+							player.damaged = true;
+						}
 					}
 				}
 
-				if (bossMagic.motion >= 12) {
+				if (bossMagic.motion >= bossMagic.motionCount) {
 					bossMagic.motion = 0;
 					boss.attacking = false;
 				}
+			}
+		}
+
+		for (var i = 0; i < playerMagic.length; i++) {
+			var magic = playerMagic[i];
+
+			if (i == 0) {
+				if (magic.alive) {
+					magic.motion++;
+					var magicImgX = magic.width * (magic.motion - 1);
+
+					ctx.drawImage(Asset.images.effect01, magicImgX, 0, magic.width, magic.height,
+						magic.position.x - magic.width / 2 ,magic.position.y - magic.height / 2, magic.width, magic.height);
+
+					ctx.beginPath();
+					ctx.arc(magic.position.x, magic.position.y, magic.size, 0, Math.PI * 2, false);
+					ctx.stroke();
+
+					judgeCollisionOfAttack(magic);
+
+					if (magic.motion >= magic.motionCount) {
+						magic.motion = 0;
+						magic.alive = false;
+						player.attacking = false;
+						enemy.damaged = false;
+						boss.damaged = false;
+					}
+				}
+			} else if (i == 1) {
+				for (var j = 0; j < magic.magicArray.length; j++) {
+					// console.log('j:' + j);
+					var m = magic.magicArray[j];
+
+					if (m.alive) {
+						m.motion++;
+						m.move(CANVAS_WIDTH, CANVAS_HEIGHT);
+
+						var imgX = 0;
+						var imgY = 0;
+
+						if (m.motion <= 5) {
+							imgX = m.width * (m.motion - 1);
+							imgY = 0;
+						} else if (m.motion <= 10) {
+							imgX = m.width * (m.motion - 6);
+							imgY = m.height;
+						} else {
+							imgX = m.width * (m.motion - 11);
+							imgY = m.height * 2;
+						}
+
+						ctx.drawImage(Asset.images.effect05, imgX, imgY, m.width, m.height,
+							m.position.x - m.width / 2 ,m.position.y - m.height / 2, m.width, m.height);
+
+						ctx.beginPath();
+						ctx.arc(m.position.x, m.position.y, m.size, 0, Math.PI * 2, false);
+						ctx.stroke();
+
+						judgeCollisionOfAttack(m);
+
+						if (m.motion >= m.motionCount) {
+							m.motion = 3;
+							enemy.damaged = false;
+							boss.damaged = false;
+						}
+					}
+				}
+
+				if (player.attacking && player.attackMagicNo == 2 && updCount - magic.useTime >= magic.time) {
+					player.attacking = false;
+				}
+
+				for (var j = magic.magicArray.length - 1; j >= 0; j--) {
+					if (!magic.magicArray[j].alive) {
+						magic.magicArray.splice(j, 1);
+					}
+				}
+
+				console.log(magic.magicArray.length);
 			}
 		}
 
@@ -175,55 +247,6 @@ function update() {
 			if (updCountForDamage > FPS) {
 				player.damaged = false;
 				updCountForDamage = 0;
-			}
-		}
-
-		if (player.attacking) {
-			playerMagic.motion++;
-			var playerMagicImgX = playerMagic.width * (playerMagic.motion - 1);
-
-			ctx.drawImage(Asset.images.effect01, playerMagicImgX, 0, playerMagic.width, playerMagic.height,
-				playerMagic.position.x - playerMagic.width / 2 ,playerMagic.position.y - playerMagic.height / 2,
-				playerMagic.width, playerMagic.height);
-
-			for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
-				if (enemy[i].alive) {
-					var distanceOfEnemy = playerMagic.position.getDistance(enemy[i].position);
-
-					if (distanceOfEnemy.getLength() < enemy[i].width) {
-						if (enemy[i].alive && !enemy[i].damaged) {
-							enemy[i].hp -= playerMagic.power;
-							enemy[i].damaged = true;
-
-							if(enemy[i].hp <= 0) {
-								enemy[i].alive = false;
-								killEnemyCount++;
-							}
-						}
-					}
-				}
-			}
-
-			var distanceOfBoss = playerMagic.position.getDistance(boss.position);
-
-			if (distanceOfBoss.getLength() < playerMagic.width / 2) {
-				if (boss.alive && !boss.damaged) {
-					boss.hp -= playerMagic.power;
-					if (boss.hp < 0) boss.hp = 0;
-					boss.damaged = true;
-
-					if (boss.hp <= 0) {
-						boss.alive = false;
-						isGameClear = true;
-					}
-				}
-			}
-
-			if (playerMagic.motion >= 7) {
-				player.attacking = false;
-				playerMagic.motion = 0;
-				enemy.damaged = false;
-				boss.damaged = false;
 			}
 		}
 
@@ -278,11 +301,66 @@ function init() {
 	updCountForGameOver = 0;
 	updCountForBoss = 0;
 	killEnemyCount = 0;
-	player = null;
-	enemy = null;
-	boss = null;
-	ready = false;
 	isGameClear = false;
+
+	player = new Player(new Position((CANVAS_WIDTH / 2), 400));
+	playerMagic = new Array(2);
+	playerMagic[0] = new Magic(1, new Position(0, 0), 128, 128, 20, 7, 10, FPS / 2);
+	playerMagic[1] = new LongDistanceMagicInfo(FPS / 2);
+
+	enemy = new Array(ENEMY_MAX_COUNT);
+	for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
+		enemy[i] = new Enemy(new Position(0, 0));
+	}
+
+	boss = new Boss(new Position((CANVAS_WIDTH / 2), 150));
+	bossMagic = new Magic(90, new Position(0, 0), 320, 240, 120, 12, 20, FPS * 3);
+}
+
+function judgeCollisionOfAttack(magic) {
+	for (var i = 0; i < ENEMY_MAX_COUNT; i++) {
+		if (enemy[i].alive) {
+			var distanceOfEnemy = magic.position.getDistance(enemy[i].position);
+
+			if (distanceOfEnemy.getLength() < magic.size + enemy[i].size) {
+				if (!enemy[i].damaged) {
+					enemy[i].hp -= magic.power;
+					if (enemy[i].hp < 0) enemy[i].hp = 0;
+					enemy[i].damaged = true;
+
+					if (magic.magicNo == 2) {
+						magic.alive = false;
+					}
+
+					if(enemy[i].hp <= 0) {
+						enemy[i].alive = false;
+						killEnemyCount++;
+					}
+				}
+			}
+		}
+	}
+
+	if (boss.alive) {
+		var distanceOfBoss = magic.position.getDistance(boss.position);
+
+		if (distanceOfBoss.getLength() < magic.size + boss.size) {
+			if (!boss.damaged) {
+				boss.hp -= magic.power;
+				if (boss.hp < 0) boss.hp = 0;
+				boss.damaged = true;
+
+				if (magic.magicNo == 2) {
+					magic.alive = false;
+				}
+
+				if (boss.hp <= 0) {
+					boss.alive = false;
+					isGameClear = true;
+				}
+			}
+		}
+	}
 }
 
 // - load --------------------------------------------------------------------
@@ -300,7 +378,8 @@ Asset.assets = [
 	{ type: 'image', name: 'effect01', src: 'img/effect_01.png'},
 	{ type: 'image', name: 'effect02', src: 'img/effect_02.png'},
 	{ type: 'image', name: 'effect03', src: 'img/effect_03.png'},
-	{ type: 'image', name: 'effect04', src: 'img/effect_04.png'}
+	{ type: 'image', name: 'effect04', src: 'img/effect_04.png'},
+	{ type: 'image', name: 'effect05', src: 'img/effect_05.png'}
 ];
 
 Asset.images = {};
@@ -361,9 +440,13 @@ function keyDown(event) {
 			player.move(keyCode, CANVAS_WIDTH, CANVAS_HEIGHT, boss);
 			break;
 		case 65: // A
-			player.attack(playerMagic, updCount);
+			player.attackA(playerMagic[0], updCount);
+			break;
+		case 83: // S
+			player.attackS(playerMagic[1], updCount);
 			break;
 		}
+
 		break;
 	}
 }
