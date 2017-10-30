@@ -1,6 +1,7 @@
 // - global -------------------------------------------------------------------
 var canvas;
 var ctx;
+var asset;
 var screenNo = 0;
 var updCount = 0;
 var updCountForDamage = 0;
@@ -31,7 +32,8 @@ window.onload = function() {
 
 	window.addEventListener('keydown', keyDown, true);
 
-	Asset.load(update);
+	asset = new Asset();
+	asset.load(update);
 }
 
 function update() {
@@ -40,13 +42,13 @@ function update() {
 
 	switch (screenNo) {
 	case 0:
-		ctx.drawImage(Asset.images.top, 0, 0);
-		ctx.drawImage(Asset.images.title, 10, 400);
+		ctx.drawImage(asset.images.top, 0, 0);
+		ctx.drawImage(asset.images.title, 10, 400);
 		ctx.font = '25px sans-serif';
 		ctx.fillText('※ enterキーを押して下さい', 220, 560);
 		break;
 	case 1:
-		ctx.drawImage(Asset.images.main, 0 ,0);
+		ctx.drawImage(asset.images.main, 0 ,0);
 
 		var playerImgX = (player.attacking) ? 0 : player.width;
 		var playerImgY = 0;
@@ -63,7 +65,7 @@ function update() {
 			break;
 		}
 
-		ctx.drawImage(Asset.images.player, playerImgX, playerImgY, player.width, player.height,
+		ctx.drawImage(asset.images.player, playerImgX, playerImgY, player.width, player.height,
 				player.position.x - player.width / 2, player.position.y - player.height / 2, player.width, player.height);
 		ctx.beginPath();
 		ctx.arc(player.position.x, player.position.y, player.size, 0, Math.PI * 2, false);
@@ -102,7 +104,7 @@ function update() {
 					}
 				}
 
-				ctx.drawImage(Asset.images.enemy01,
+				ctx.drawImage(asset.images.enemy01,
 					enemy[i].position.x - enemy[i].width / 2, enemy[i].position.y - enemy[i].height / 2);
 				ctx.beginPath();
 				ctx.arc(enemy[i].position.x, enemy[i].position.y, enemy[i].size, 0, Math.PI * 2, false);
@@ -114,13 +116,13 @@ function update() {
 			updCountForBoss++;
 
 			if (FPS < updCountForBoss && updCountForBoss <= FPS + 10) {
-				ctx.drawImage(Asset.images.effect03, 200 * (updCountForBoss - FPS - 1), 0, 200, 200,
+				ctx.drawImage(asset.images.effect03, 200 * (updCountForBoss - FPS - 1), 0, 200, 200,
 					boss.position.x - 100, boss.position.y - 100, 200, 200);
 			}
 
 			if (updCountForBoss > FPS * 2) {
 				boss.move(CANVAS_WIDTH, CANVAS_HEIGHT, player, updCountForBoss, FPS);
-				ctx.drawImage(Asset.images.boss, boss.position.x - boss.width / 2, boss.position.y - boss.height / 2);
+				ctx.drawImage(asset.images.boss, boss.position.x - boss.width / 2, boss.position.y - boss.height / 2);
 				ctx.beginPath();
 				ctx.arc(boss.position.x, boss.position.y, boss.size, 0, Math.PI * 2, false);
 				ctx.stroke();
@@ -131,7 +133,7 @@ function update() {
 				bossMagic.motion++;
 				var bossMagicImgY = bossMagic.height * (bossMagic.motion - 1);
 
-				ctx.drawImage(Asset.images.effect04, 0, bossMagicImgY, bossMagic.width, bossMagic.height,
+				ctx.drawImage(asset.images.effect04, 0, bossMagicImgY, bossMagic.width, bossMagic.height,
 					bossMagic.position.x - bossMagic.width / 2, bossMagic.position.y - bossMagic.height / 2,
 					bossMagic.width, bossMagic.height);
 				ctx.beginPath();
@@ -165,7 +167,7 @@ function update() {
 					magic.motion++;
 					var magicImgX = magic.width * (magic.motion - 1);
 
-					ctx.drawImage(Asset.images.effect01, magicImgX, 0, magic.width, magic.height,
+					ctx.drawImage(asset.images.effect01, magicImgX, 0, magic.width, magic.height,
 						magic.position.x - magic.width / 2 ,magic.position.y - magic.height / 2, magic.width, magic.height);
 
 					ctx.beginPath();
@@ -184,7 +186,6 @@ function update() {
 				}
 			} else if (i == 1) {
 				for (var j = 0; j < magic.magicArray.length; j++) {
-					// console.log('j:' + j);
 					var m = magic.magicArray[j];
 
 					if (m.alive) {
@@ -205,7 +206,7 @@ function update() {
 							imgY = m.height * 2;
 						}
 
-						ctx.drawImage(Asset.images.effect05, imgX, imgY, m.width, m.height,
+						ctx.drawImage(asset.images.effect05, imgX, imgY, m.width, m.height,
 							m.position.x - m.width / 2 ,m.position.y - m.height / 2, m.width, m.height);
 
 						ctx.beginPath();
@@ -231,8 +232,6 @@ function update() {
 						magic.magicArray.splice(j, 1);
 					}
 				}
-
-				console.log(magic.magicArray.length);
 			}
 		}
 
@@ -240,7 +239,7 @@ function update() {
 			updCountForDamage++;
 
 			if (updCountForDamage <= 5) {
-				ctx.drawImage(Asset.images.effect02, 0, 0, 128, 128,
+				ctx.drawImage(asset.images.effect02, 0, 0, 128, 128,
 					player.position.x - player.width, player.position.y - player.height, 128, 128);
 			}
 
@@ -268,7 +267,7 @@ function update() {
 			player.alive = false;
 
 			if (updCountForGameOver >= 10) {
-				ctx.drawImage(Asset.images.gameOver, 80, 200);
+				ctx.drawImage(asset.images.gameOver, 80, 200);
 				ctx.font = '25px sans-serif';
 				ctx.fillText('※ escキーを押して下さい', 250, 400);
 				run = false;
@@ -279,7 +278,7 @@ function update() {
 			updCountForGameClear++;
 			
 			if (updCountForGameClear >= FPS) {
-				ctx.drawImage(Asset.images.gameClear, 80, 200);
+				ctx.drawImage(asset.images.gameClear, 80, 200);
 				ctx.font = '25px sans-serif';
 				ctx.fillText('※ escキーを押して下さい', 250, 400);
 				run = false;
@@ -363,54 +362,6 @@ function judgeCollisionOfAttack(magic) {
 	}
 }
 
-// - load --------------------------------------------------------------------
-var Asset = {};
-
-Asset.assets = [
-	{ type: 'image', name: 'top', src: 'img/background_01.jpg' },
-	{ type: 'image', name: 'main', src: 'img/background_02.jpeg' },
-	{ type: 'image', name: 'title', src: 'img/title.png'},
-	{ type: 'image', name: 'gameOver', src: 'img/game_over.png'},
-	{ type: 'image', name: 'gameClear', src: 'img/game_clear.png'},
-	{ type: 'image', name: 'player', src: 'img/player.png'},
-	{ type: 'image', name: 'enemy01', src: 'img/enemy_01.png'},
-	{ type: 'image', name: 'boss', src: 'img/boss.png'},
-	{ type: 'image', name: 'effect01', src: 'img/effect_01.png'},
-	{ type: 'image', name: 'effect02', src: 'img/effect_02.png'},
-	{ type: 'image', name: 'effect03', src: 'img/effect_03.png'},
-	{ type: 'image', name: 'effect04', src: 'img/effect_04.png'},
-	{ type: 'image', name: 'effect05', src: 'img/effect_05.png'}
-];
-
-Asset.images = {};
-
-Asset.load = function(onLoadAll) {
-	var total = Asset.assets.length;
-	var loadCount = 0;
-
-	var onLoad = function() {
-		loadCount++;
-		if (loadCount >= total) {
-			onLoadAll();
-		}
-	};
-
-	Asset.assets.forEach(function(asset) {
-		switch (asset.type) {
-		case 'image':
-			Asset._loadImage(asset, onLoad);
-			break;
-		}
-	});
-};
-
-Asset._loadImage = function(asset, onLoad) {
-	var image = new Image();
-	image.src = asset.src;
-	image.onload = onLoad;
-	Asset.images[asset.name] = image;
-};
-
 // - event --------------------------------------------------------------------
 function keyDown(event) {
 	var keyCode = event.keyCode;
@@ -448,5 +399,51 @@ function keyDown(event) {
 		}
 
 		break;
+	}
+}
+
+// - Asset --------------------------------------------------------------------
+class Asset {
+	constructor() {
+		this.assets = [
+			{ type: 'image', name: 'top', src: 'img/background_01.jpg' },
+			{ type: 'image', name: 'main', src: 'img/background_02.jpeg' },
+			{ type: 'image', name: 'title', src: 'img/title.png'},
+			{ type: 'image', name: 'gameOver', src: 'img/game_over.png'},
+			{ type: 'image', name: 'gameClear', src: 'img/game_clear.png'},
+			{ type: 'image', name: 'player', src: 'img/player.png'},
+			{ type: 'image', name: 'enemy01', src: 'img/enemy_01.png'},
+			{ type: 'image', name: 'boss', src: 'img/boss.png'},
+			{ type: 'image', name: 'effect01', src: 'img/effect_01.png'},
+			{ type: 'image', name: 'effect02', src: 'img/effect_02.png'},
+			{ type: 'image', name: 'effect03', src: 'img/effect_03.png'},
+			{ type: 'image', name: 'effect04', src: 'img/effect_04.png'},
+			{ type: 'image', name: 'effect05', src: 'img/effect_05.png'}
+		];
+
+		this.images = {};
+	}
+
+	load(onLoadAll) {
+		var total = this.assets.length;
+		var loadCount = 0;
+
+		var onLoad = function() {
+			loadCount++;
+			if (loadCount >= total) {
+				onLoadAll();
+			}
+		};
+
+		this.assets.forEach(function(asset) {
+			switch (asset.type) {
+			case 'image':
+				var image = new Image();
+				image.src = asset.src;
+				image.onload = onLoad;
+				this.images[asset.name] = image;
+				break;
+			}
+		}, this);
 	}
 }
