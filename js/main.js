@@ -253,13 +253,21 @@ function update() {
 			boss.alive = true;
 		}
 
+		if (updCount % FPS == 0) {
+			player.mp++;
+		}
+
 		ctx.font = '25px sans-serif';
-		ctx.fillText('Player: HP', 10, 30);
-		ctx.fillText(player.hp, 140, 30);
+		ctx.fillText('Player', 10, 30);
+		ctx.fillText('HP:', 10, 60);
+		ctx.fillText(player.hp, 60, 60);
+		ctx.fillText('MP:', 10, 90);
+		ctx.fillText(player.mp, 60, 90);
 
 		if (updCountForBoss > FPS * 2) {
-			ctx.fillText('Boss: HP', 620, 30);
-			ctx.fillText(boss.hp, 740, 30);
+			ctx.fillText('Boss', 690, 30);
+			ctx.fillText('HP:', 690, 60);
+			ctx.fillText(boss.hp, 740, 60);
 		}
 
 		if (player.hp <= 0) {
@@ -304,7 +312,7 @@ function init() {
 
 	player = new Player(new Position((CANVAS_WIDTH / 2), 400));
 	playerMagic = new Array(2);
-	playerMagic[0] = new Magic(1, new Position(0, 0), 128, 128, 20, 7, 10, FPS / 2);
+	playerMagic[0] = new Magic(1, new Position(0, 0), 128, 128, 20, 7, 10, FPS / 2, 5);
 	playerMagic[1] = new LongDistanceMagicInfo(FPS / 2);
 
 	enemy = new Array(ENEMY_MAX_COUNT);
