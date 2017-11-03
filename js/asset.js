@@ -14,7 +14,6 @@ class Asset {
 			{ type: 'image', name: 'bossOpacity', src: 'img/boss_opacity.png'},
 			{ type: 'image', name: 'effect01', src: 'img/effect_01.png'},
 			{ type: 'image', name: 'effect02', src: 'img/effect_02.png'},
-			{ type: 'image', name: 'effect03', src: 'img/effect_03.png'},
 			{ type: 'image', name: 'effect04', src: 'img/effect_04.png'},
 			{ type: 'image', name: 'effect05', src: 'img/effect_05.png'},
 			{ type: 'image', name: 'effect06', src: 'img/effect_06.png'}
