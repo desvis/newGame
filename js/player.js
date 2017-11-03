@@ -27,10 +27,9 @@ class Player {
 				this.direction = 0;
 				this.nextPosition.x = this.position.x - this.speed;
 
-				var collisionCanvas = checkCollisionCanvas(this);
 				var collisionChar = this._checkCollisionChar(skeletons, boss);
 
-				if (!collisionCanvas && !collisionChar) {
+				if (this.nextPosition.x - this.width / 2 > 0 && !collisionChar) {
 					this.position.x = this.nextPosition.x;
 				}
 
@@ -40,10 +39,9 @@ class Player {
 				this.direction = 1;
 				this.nextPosition.y = this.position.y - this.speed;
 
-				var collisionCanvas = checkCollisionCanvas(this);
 				var collisionChar = this._checkCollisionChar(skeletons, boss);
 
-				if (!collisionCanvas && !collisionChar) {
+				if (this.nextPosition.y - this.height / 2 > 150 && !collisionChar) {
 					this.position.y = this.nextPosition.y;
 				}
 
@@ -53,10 +51,9 @@ class Player {
 				this.direction = 2;
 				this.nextPosition.x = this.position.x + this.speed;
 
-				var collisionCanvas = checkCollisionCanvas(this);
 				var collisionChar = this._checkCollisionChar(skeletons, boss);
 
-				if (!collisionCanvas && !collisionChar) {
+				if (this.nextPosition.x + this.width / 2 < CANVAS_WIDTH && !collisionChar) {
 					this.position.x = this.nextPosition.x;
 				}
 
@@ -66,10 +63,9 @@ class Player {
 				this.direction = 3;
 				this.nextPosition.y = this.position.y + this.speed;
 
-				var collisionCanvas = checkCollisionCanvas(this);
 				var collisionChar = this._checkCollisionChar(skeletons, boss);
 
-				if (!collisionCanvas && !collisionChar) {
+				if (this.nextPosition.y + this.height / 2 < CANVAS_HEIGHT && !collisionChar) {
 					this.position.y = this.nextPosition.y;
 				}
 
