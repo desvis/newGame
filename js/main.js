@@ -106,6 +106,7 @@ function init() {
 	updCount = 0;
 	updCountForGameClear = 0;
 	updCountForGameOver = 0;
+	killBatCount = 0;
 	isGameClear = false;
 	player = new Player(new Position((CANVAS_WIDTH / 2), 400));
 	createEnemy();
