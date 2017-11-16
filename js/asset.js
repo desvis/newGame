@@ -12,6 +12,7 @@ class Asset {
 			{ type: 'image', name: 'skeletonOpacity', src: 'img/enemy_02_opacity.png'},
 			{ type: 'image', name: 'boss', src: 'img/boss.png'},
 			{ type: 'image', name: 'bossOpacity', src: 'img/boss_opacity.png'},
+			{ type: 'image', name: 'num', src: 'img/number.png'},
 			{ type: 'image', name: 'effect01', src: 'img/effect_01.png'},
 			{ type: 'image', name: 'effect02', src: 'img/effect_02.png'},
 			{ type: 'image', name: 'effect04', src: 'img/effect_04.png'},

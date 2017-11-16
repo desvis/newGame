@@ -13,6 +13,7 @@ var bats;
 var skeletons;
 var boss;
 var bossMagics;
+var damagePoints;
 var isGameClear = false;
 var run = true;
 
@@ -64,6 +65,7 @@ function update() {
 		drawBoss();
 		drawBossMagic();
 		drawPlayerMagic();
+		drawDamagePoint();
 
 		if (updCount % (FPS / 2) == 0 && player.mp < player.maxMp) {
 			player.mp++;
@@ -106,6 +108,7 @@ function init() {
 	updCount = 0;
 	updCountForGameClear = 0;
 	updCountForGameOver = 0;
+	damagePoints = new Array();
 	killBatCount = 0;
 	isGameClear = false;
 	player = new Player(new Position((CANVAS_WIDTH / 2), 400));
@@ -247,6 +250,8 @@ function drawBat() {
 					player.hp -= bats[i].power;
 					if (player.hp < 0) player.hp = 0;
 					bats[i].attacking = true;
+
+					createDamagePoint(bats[i].power, player.position);
 				}
 			}
 
@@ -297,6 +302,8 @@ function drawSkeleton() {
 						player.hp -= skeletons[i].power;
 						if (player.hp < 0) player.hp = 0;
 						skeletons[i].attacking = true;
+
+						createDamagePoint(skeletons[i].power, player.position);
 					}
 				}
 
@@ -500,6 +507,44 @@ function drawPlayerMagic() {
 	}
 }
 
+function createDamagePoint(damagePoint, position) {
+	var dp = damagePoint.toString();
+
+	for (var i = 0; i < dp.length; i++) {
+		var numStr = dp.substring(i, i + 1);
+
+		var point = new Point();
+		point.position.x = position.x + (point.drawSize * i) - (point.drawSize * dp.length / 2);
+		point.position.y = position.y;
+		point.value = parseInt(numStr, 10);
+
+		damagePoints.push(point);
+	}
+}
+
+function drawDamagePoint() {
+	for (var i = 0; i < damagePoints.length; i++) {
+		var point = damagePoints[i];
+
+		if (point.alive) {
+			point.motion++;
+
+			ctx.drawImage(asset.images.num, point.size * point.value, 0, point.size, point.size,
+				point.position.x, point.position.y, point.drawSize, point.drawSize);
+
+			if (point.motion >= point.motionCount) {
+				point.alive = false;
+			}
+		}
+	}
+
+	for (var i = damagePoints.length - 1; i >= 0; i--) {
+		if (!damagePoints[i].alive) {
+			damagePoints.splice(i, 1);
+		}
+	}
+}
+
 function drawEnemyHp(enemy) {
 	var hpX = enemy.position.x - ENEMY_HP_WIDTH / 2;
 	var hpY = enemy.position.y - (enemy.height / 2) - ENEMY_HP_HEIGHT / 2;
@@ -548,6 +593,8 @@ function judgeCollisionOfAttack(magic) {
 					if (bats[i].hp < 0) bats[i].hp = 0;
 					bats[i].damaged = true;
 
+					createDamagePoint(magic.power, bats[i].position);
+
 					if (magic.magicNo == 2) {
 						magic.alive = false;
 					}
@@ -574,8 +621,9 @@ function judgeCollisionOfAttack(magic) {
 				if (!skeletons[i].damaged && !skeletons[i].stopping) {
 					skeletons[i].hp -= magic.power;
 					if (skeletons[i].hp < 0) skeletons[i].hp = 0;
-
 					skeletons[i].damaged = true;
+
+					createDamagePoint(magic.power, skeletons[i].position);
 
 					if (magic.magicNo == 2) {
 						magic.alive = false;
@@ -597,6 +645,8 @@ function judgeCollisionOfAttack(magic) {
 				boss.hp -= magic.power;
 				if (boss.hp < 0) boss.hp = 0;
 				boss.damaged = true;
+
+				createDamagePoint(magic.power, boss.position);
 
 				if (magic.magicNo == 2) {
 					magic.alive = false;
@@ -620,6 +670,8 @@ function judgeCollisionOfAttackForBoss(magic) {
 				player.hp -= magic.power;
 				if (player.hp < 0) player.hp = 0;
 				player.damaged = true;
+
+				createDamagePoint(magic.power, player.position);
 
 				if (magic.magicNo == 91) {
 					magic.alive = false;

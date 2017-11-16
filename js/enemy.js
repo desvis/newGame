@@ -211,7 +211,7 @@ class Boss extends Enemy {
 
 		switch (this.attackType) {
 		case 0:
-			if (updCount % (FPS * 2) == 0) {
+			if (updCount % (FPS * 3) == 0) {
 				var magic = new LongDistanceMagic();
 				magic.magicNo = 91;
 				magic.position = new Position(this.position.x, this.position.y);
